@@ -1,0 +1,48 @@
+	
+[main]
+
+;telegram bot token
+
+token = token
+
+;data of social credit
+
+DFILE = data.sosibitara
+
+;data of user's coins
+
+MUSER = mlbData.sosibitara
+
+;sold offers file
+
+OSFILE = offersS.sosibitara
+
+;buy offers file
+
+OBFILE = offersB.sosibitara
+
+;rate file
+
+RFILE = rate.sosibitara
+
+;admins file
+ 
+AFILE = radmins.ini
+
+;file with information about coin
+
+CFILE = crypto.ini
+
+[other]
+
+;time for sc
+
+TIME = 1
+
+; denominator for mining scale (float)
+
+SCALED = 0.400
+
+;time for updating rate
+
+RTIME = 5
