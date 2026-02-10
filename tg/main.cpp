@@ -9,10 +9,46 @@ std::string AFILE;
 std::string CFILE;
 std::string MUSER;
 bool DNOT = true;
-coin CDATA_ALL[MAX_COINS] = {};
+std::vector<coin> CDATA_ALL;
 
 int TIME;
 float SCALED;
+
+std::map<int32_t, userData> usr;
+
+void usrInit(){
+    FILE* file = fopen(MUSER.c_str(), "rb");
+    if(!file){
+        debug("err", "coin data load error");
+        return;
+    }
+    userCoins temp{};
+    while(fread(&temp, sizeof(temp), 1, file) == 1){
+      debug("wrn", std::to_string(temp.userId));
+      debug("wrn", std::to_string(temp.count));
+      debug("wrn", std::to_string(temp.lastMine));
+      debug("wrn", std::to_string(temp.numUp));
+      debug("wrn", "");
+      printf("%d", temp.id_coin);
+      usr[temp.userId].coinInf[CDATA_ALL[temp.id_coin].name] = temp;
+      printf("%s done", (CDATA_ALL[temp.id_coin].name).c_str());
+    }
+    fclose(file);
+    file = fopen(DFILE.c_str(), "rb");
+    if(!file){
+    	debug("err", "couldn`t open DFILE");
+	return;
+    }
+
+    social s{};
+    while( fread(&s, sizeof(s), 1, file) == 1) 
+		    {
+		    	usr[temp.userId].Social = s;
+		    }
+    debug("wrn", "reading data for user done");
+    fclose(file); 
+    return;
+}
 
 int File::init(bool silent){
     boost::property_tree::ptree config;
@@ -67,7 +103,7 @@ int File::init(bool silent){
                                 r.SIMULATION = true;
                             }
                             else if(arg == "ECONOMICS"){
-                                r.CRYPT_DATA_EDITING == true;
+                                r.CRYPT_DATA_EDITING = true;
                             }
                             else if(arg == "CRYPT"){
                                 r.CRYPT_EDITING = true;
@@ -124,18 +160,20 @@ int File::init(bool silent){
 }
 int File::coinInit(bool silent){
     try{
-    boost::property_tree::ptree coin;
-    boost::property_tree::ini_parser::read_ini(CFILE, coin);
+    boost::property_tree::ptree coinp;
+    boost::property_tree::ini_parser::read_ini(CFILE, coinp);
     short pos = 1;
-    while(coin.size() >= pos){
-        CDATA_ALL[pos - 1].name = coin.get<std::string>(std::to_string(pos) + ".name");
-        CDATA_ALL[pos - 1].rate = coin.get<double>(std::to_string(pos) + ".DRATE");
-        CDATA_ALL[pos - 1].sens = coin.get<float>(std::to_string(pos) + ".sens");
-       std::string temp =  CDATA_ALL[pos - 1].uniqueId  = coin.get<std::string>(std::to_string(pos) + ".uid");
+    while(coinp.size() >= pos){
+	coin tempo;
+        tempo.name = coinp.get<std::string>(std::to_string(pos) + ".name");
+        tempo.rate = coinp.get<double>(std::to_string(pos) + ".DRATE");
+        tempo.sens = coinp.get<float>(std::to_string(pos) + ".sens");
+       std::string temp =  tempo.uniqueId  = coinp.get<std::string>(std::to_string(pos) + ".uid");
        debug("wrn", "uid: " + temp);
+       	CDATA_ALL.push_back(tempo);
        if (temp == "null"){
             Crypto::giveUniqueId(&CDATA_ALL[pos-1]);
-            coin.put(std::to_string(pos) + ".uid", CDATA_ALL[pos-1].uniqueId);
+            coinp.put(std::to_string(pos) + ".uid", CDATA_ALL[pos-1].uniqueId);
             debug ("wrn", "new uid for " + CDATA_ALL[pos-1].name + ": " + CDATA_ALL[pos-1].uniqueId);
        }
         if(!silent)
@@ -147,7 +185,7 @@ int File::coinInit(bool silent){
     std::cout << termcolor::green << "[V]" << termcolor::reset << " - init coin complete" << "\n";
     debug("wrn", "size of array coin: " + std::to_string(pos - 1));
     }
-    boost::property_tree::write_ini(CFILE, coin);
+    boost::property_tree::write_ini(CFILE, coinp);
     debug("cmn", "new ver of " + CFILE  + " added" );
     return 0;
     }catch(std::exception& e){
@@ -163,6 +201,7 @@ int main(){
      if(File::coinInit(false)){
         return 1;
     }
+    usrInit();
     boost::property_tree::ptree config;
     boost::property_tree::ini_parser::read_ini("config.ini", config);
     std::string token;
@@ -230,53 +269,60 @@ int main(){
     });
 
     bot.getEvents().onCommand("scap", [&bot](TgBot::Message::Ptr message){
+	bool rgts = false;{
         Rights r{};
-        r.DATA_EDITING, r.CRYPT_EDITING, r.ADMIN_LIST_EDITING, r.CRYPT_DATA_EDITING, r.SIMULATION , r.GLOBAL = true;
+        r.DATA_EDITING = r.CRYPT_EDITING = r.ADMIN_LIST_EDITING = r.CRYPT_DATA_EDITING = r.SIMULATION = r.GLOBAL = true;
         r.tgId = message->from->id;
-        if(isAdmin(&r)){
+	if(isAdmin(&r))
+		rgts = true;
+	}
+        if(rgts){
             std::vector<std::string> parse;
             parse = splitArgs(message->text);
+	    debug("wrn", "parse size: " + std::to_string(parse.size()));
             if(parse.size() > 1){
-                if(parse[1] == "mode"){
+	    if(parse[1] == "mode" && parse.size() > 2){
                     DNOT = (parse[2] == "silent") ? true : (parse[2] == "loud") ? false : DNOT;
                     debug("wrn", (DNOT)? "silent mode activated" : "loud mode activated"); 
                 }
-                else if(parse[1] == "info"){
+                else if(parse[1] == "info" && message->replyToMessage){
+		    
+		    auto start = std::chrono::steady_clock::now();
 
                     int64_t id = message->replyToMessage->from->id;
 
                     social s{};
                     s = File::loadSocial(message->replyToMessage->from->id);
-
+		    debug("wrn", "social loaded");
                     std::string creditPallet =  "```credit\n"  "bonus count: " + std::to_string(s.bonusCount) + 
                     "\ncount: " + std::to_string(s.creditCount) + 
                     "\nlast played: " + std::to_string(s.lastPlayed) +
                     "\nparty member: " + ((s.partyMember) ? "true" : "false") + "\n```\n";
+		    debug("wrn", "pallet created");
 
-
-                    short count = 0;
-                    
-                    while(CDATA_ALL[count].sens != 0){
-                        count++;
-                    }
-                     
                     std::string pallet = "";
 
-                    for(int i = 0; i < count; i++){
-                        userCoins coins{};
-                        
-                        coins = Crypto::loadData(id, i);
+		    std::ostringstream ossp;
 
-                        pallet +=  "```" + CDATA_ALL[i].name + 
-                        "\ncount: " + std::to_string(coins.count) + "\n" + 
-                        "last mine: " + std::to_string(coins.lastMine) + "\n" +
-                        "num up: " + std::to_string(coins.numUp) + "\n```\n" ;
+                    for(int i = 0; i < CDATA_ALL.size(); i++){
+                        userCoins coins = Crypto::loadData(id, i);
+
+                        ossp <<  "```" << CDATA_ALL[i].name << 
+                        "\ncount: " << std::to_string(coins.count) << "\n" << 
+                        "last mine: " << std::to_string(coins.lastMine) << "\n" <<
+                        "num up: " << std::to_string(coins.numUp) << "\n```\n" ;
 
                     }
+
+		    pallet = ossp.str();
 
                     auto replyOptions = std::make_shared<TgBot::ReplyParameters>();
                     replyOptions->messageId = message->messageId;
                     replyOptions->chatId = message->chat->id;
+		    
+		    auto end = std::chrono::steady_clock::now();
+		    auto ms = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+		    debug("wrn", "time for: " + std::to_string(ms));
 
                     bot.getApi().sendMessage(message->chat->id, creditPallet + pallet, nullptr, replyOptions, nullptr, "MarkdownV2");
                     debug("wrn" , message->from->firstName + " used scap info");

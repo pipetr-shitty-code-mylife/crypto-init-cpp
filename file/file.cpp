@@ -2,6 +2,13 @@
 
 namespace File{
 social loadSocial(int userId){
+
+    if(usr.contains(userId))
+    { 
+	debug("inf", "social loaded from memory");
+    	return usr[userId].Social;
+    }
+   	
     social sTrash{};
     FILE* file = fopen(DFILE.c_str(), "rb");
     if(!file){
@@ -24,6 +31,7 @@ social loadSocial(int userId){
 }
 
 void save(social& s){
+    usr[s.userId].Social = s;
     FILE* file = fopen(DFILE.c_str(), "r+b");
     if (!file) {
         file = fopen(DFILE.c_str(), "wb");
@@ -60,6 +68,13 @@ void save(social& s){
 }
 
 userCoins Crypto::loadData(int userId , int num){
+    debug("wrn", "1");
+    debug("inf", usr.contains(userId) ? "true" : "false");
+    if(usr.contains(userId)){
+	    if(usr[userId].coinInf.contains(CDATA_ALL[num].name))
+		  return usr[userId].coinInf[CDATA_ALL[num].name];
+    
+    }
     userCoins trash{};
     FILE* file = fopen(MUSER.c_str(), "rb");
     if(!file){

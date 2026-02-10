@@ -137,10 +137,16 @@ void Tg::buySold(TgBot::Bot &bot){
 void File::soffer(offer& o, int type){
         FILE* f = fopen((type == 1)? OSFILE.c_str() : OBFILE.c_str() , "ab");
         if(!f){
-            debug("inf", "creating " + (type == 1)? "OSFILE...." : "OBFILE....");
+	    {
+	    std::string str = (type == 1)? "OSFILE...." : "OBFILE....";
+            debug("inf", "creating " + str);
+	    
+	    }
+
             f = fopen((type == 1)? OSFILE.c_str() : OBFILE.c_str(), "wb");
             if(!f){
-                debug("err", "error creating " +  (type == 1)? "OSFILE" : "OBFILE");
+		std::string str = (type == 1) ? "OSFILE" : "OBFILE";
+                debug("err", ("error creating "  + str));
                 return;
             }
         }

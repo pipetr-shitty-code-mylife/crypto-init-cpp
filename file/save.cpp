@@ -2,7 +2,7 @@
 
 
 int Crypto::saveCoinUser(userCoins& uc){
-
+    usr[uc.userId].coinInf[CDATA_ALL[uc.id_coin].name] = uc;
     FILE* file = fopen(MUSER.c_str(), "r+b");
 
     if (!file) {
