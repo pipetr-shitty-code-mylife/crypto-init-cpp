@@ -1,0 +1,20 @@
+;rights types
+
+;root - all functions of bot available
+;mod - user data editing functions available 
+;crypt - crypto data editing functions available
+;modcrypt - user crypto data editing functions available 
+
+;you also can give user some rights like 
+
+;{DATA,ECONOMICS,SIMULATION, etc} 
+
+
+;if you want appoint admin in one chat you can put like this
+[chat_id]
+type = user_id 
+
+;admins who have rights in all chats
+[GLOBAL_ADMINS]
+type = user_id
+

@@ -8,12 +8,13 @@ std::string RFILE;
 std::string AFILE;
 std::string CFILE;
 std::string MUSER;
-bool DNOT = true;
+bool DNOT = false;
 std::vector<coin> CDATA_ALL;
 
 int TIME;
 float SCALED;
 
+std::string ignoredErrors[] = {};
 std::map<int32_t, userData> usr;
 
 void usrInit(){
@@ -331,21 +332,18 @@ int main(){
         }
     });
 
-    while(true){
-        try
-        {
-            debug("inf", "bot start.");
-            TgBot::TgLongPoll lPoll(bot);
-            while(true){
-                lPoll.start();
-            }
+    debug("inf", "bot start.");
+    TgBot::TgLongPoll lPoll(bot);
+
+    while (true) {
+        try {
+            lPoll.start();
         }
-        catch(const std::exception& e)
-        {
-            std::cerr << termcolor::blue << "[X]" << termcolor::reset << " - " << e.what() << '\n';
+            catch (const std::exception& e) {
+            std::cerr << "[X] - " << e.what() << '\n';
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         }
-        
-    }
+}
 
     return 0;
 }

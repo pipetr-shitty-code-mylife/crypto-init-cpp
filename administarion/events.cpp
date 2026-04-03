@@ -4,7 +4,7 @@
 void Crypto::listStrGen(std::string *str){
          *str += "------монеты------\n";
         int pos = 0;
-        while(CDATA_ALL[pos].rate != 0){
+        while(CDATA_ALL.size() > pos){
             *str += "монета: " + CDATA_ALL[pos].name + "\n";
             *str += "курс: " + std::to_string(CDATA_ALL[pos].rate) + "\n";
             *str += "\n";

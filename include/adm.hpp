@@ -55,6 +55,7 @@ struct MenuIds{
 namespace Menu{
     void callBackCheck(TgBot::CallbackQuery::Ptr query, TgBot::Bot* bot);
 };
+
 extern std::map<int64_t, MenuIds> currentIdMessage;
 extern std::map<std::string, Adm::Submenu> allSubmenus;
 

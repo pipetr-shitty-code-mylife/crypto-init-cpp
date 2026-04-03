@@ -8,6 +8,7 @@ std::map<int64_t, MenuIds> currentIdMessage;
 std::map<std::string, Adm::Submenu> allSubmenus;
 
 
+
 void MenuInit(){
         mainMenu.menuText = "main menu";
         mainMenu.menuId = "menu0";
@@ -17,7 +18,7 @@ void MenuInit(){
         mainMenu.mapp["0"].menuId = "menu2";
         mainMenu.menuText = "shit";
         allSubmenus[mainMenu.menuId] = mainMenu;
-        Adm::Submenu popa;
+        Adm::Submenu popa{};
         popa.buttonText  = "ya pokakal";
         popa.mapp["2"] = {};
         popa.mapp["2"].buttonText = "test";
@@ -117,7 +118,8 @@ void Menu::callBackCheck(TgBot::CallbackQuery::Ptr query, TgBot::Bot *bot){
         debug("wrn", allSubmenus[menu->mapp[data].menuId].menuText);
         debug("wrn", data);
         debug("wrn", menu->mapp[data].menuId);
-        bot->getApi().editMessageText(allSubmenus[menu->mapp[data].menuId].menuText, query->message->chat->id, messageId, "", "", nullptr, keyboard);
+        debug("wrn", "message id: " + std::to_string(messageId));
+        bot->getApi().editMessageText(allSubmenus[menu->mapp[data].menuId].menuText, query->message->chat->id, query->message->messageId, "", "", nullptr, keyboard);
         MenuIds id = {menu->mapp[data].menuId, query->message->from->id};
         currentIdMessage[messageId] = id;
         }   
