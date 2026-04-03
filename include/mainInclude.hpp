@@ -16,6 +16,7 @@
 #include<sstream>
 #include<termcolor/termcolor.hpp>
 #include <stdint.h>
+#include <map>
 
 #define MAX_COINS 100
 
@@ -98,7 +99,7 @@ namespace Tg{
 
 
 extern bool DNOT;
-extern coin CDATA_ALL[MAX_COINS];
+extern std::vector<coin> CDATA_ALL;
 extern std::string DFILE;
 extern std::string OSFILE;
 extern std::string OBFILE;
@@ -110,4 +111,10 @@ extern int radmins[MAX_COINS];
 extern int TIME;
 extern float SCALED;
 
+typedef struct {
+	social Social;
+	std::map<std::string, userCoins> coinInf;
+} userData;
+
+extern std::map<int, userData> usr;
 #endif
